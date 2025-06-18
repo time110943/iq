@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <!-- تعطيل تكبير وتصغير الصفحة -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>لوحة التحكم - منصة السادس</title>
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #c62828;
+      --dark-bg: #0a0a0a;
+      --dark-text: #f5f5f5;
+      --dark-card: #1a1a1a;
+      --dark-border: #333;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Almarai', sans-serif;
+    }
+    body {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+      line-height: 1.6;
+      min-height: 100vh;
+      direction: rtl;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    /* تنسيق نموذج تسجيل الدخول */
+    #loginForm {
+      background: var(--dark-card);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+      text-align: center;
+    }
+    #loginForm h2 {
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+    #loginForm .form-group {
+      margin-bottom: 15px;
+      text-align: right;
+    }
+    #loginForm label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--primary);
+    }
+    #loginForm input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--dark-border);
+      border-radius: 8px;
+      background: var(--dark-bg);
+      color: var(--dark-text);
+      transition: 0.3s;
+    }
+    #loginForm button {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    #loginForm button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    #loginError {
+      margin-top: 10px;
+      color: #ff4444;
+    }
+    /* تنسيق لوحة التحكم بعد تسجيل الدخول */
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .section {
+      background: var(--dark-card);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+    }
+    h2 {
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--primary);
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--dark-border);
+      border-radius: 8px;
+      background: var(--dark-bg);
+      color: var(--dark-text);
+      transition: 0.3s;
+    }
+    button {
+      background: var(--primary);
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+    .teachers-list {
+      display: grid;
+      gap: 15px;
+    }
+    .teacher-item {
+      background: var(--dark-card);
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      position: relative;
+    }
+    .teacher-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .image-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      margin: 10px 0;
+      display: none;
+    }
+    .class-management {
+      margin-top: 15px;
+      padding: 15px;
+      background: var(--dark-bg);
+      border-radius: 8px;
+    }
+    .class-item {
+      margin: 10px 0;
+      padding: 10px;
+      background: var(--dark-card);
+      border-radius: 5px;
+    }
+    .lecture-item {
+      padding: 10px;
+      margin: 5px 0;
+      background: var(--dark-bg);
+      border-radius: 5px;
+      border-right: 3px solid var(--primary);
+    }
+    /* إخفاء محتوى لوحة التحكم حتى يتم تسجيل الدخول */
+    #adminContent {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- نموذج تسجيل الدخول -->
+  <div id="loginForm">
+    <h2>تسجيل الدخول</h2>
+    <div class="form-group">
+      <label for="loginEmail">البريد الإلكتروني:</label>
+      <input type="email" id="loginEmail" placeholder="أدخل البريد الإلكتروني">
+    </div>
+    <div class="form-group">
+      <label for="loginPassword">كلمة المرور:</label>
+      <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور">
+    </div>
+    <button onclick="login()">دخول</button>
+    <div id="loginError"></div>
+  </div>
+
+  <!-- محتوى لوحة التحكم -->
+  <div id="adminContent" class="container">
+    <!-- قسم إدارة المدرسين -->
+    <div class="section">
+      <h2>إدارة المدرسين</h2>
+      
+      <div class="form-group">
+        <label>اسم المدرس:</label>
+        <input type="text" id="teacherName">
+      </div>
+      
+      <div class="form-group">
+        <label>المادة:</label>
+        <input type="text" id="teacherSubject">
+      </div>
+      
+      <div class="form-group">
+        <label>رابط الصورة:</label>
+        <input type="text" id="teacherImage" onchange="previewImage(this.value)">
+        <img id="imagePreview" class="image-preview">
+      </div>
+      
+      <button onclick="saveTeacher()">حفظ المدرس</button>
+    </div>
+
+    <!-- قائمة المدرسين -->
+    <div class="section">
+      <h2>قائمة المدرسين</h2>
+      <div id="teachersList" class="teachers-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // بيانات الدخول الثابتة
+    const ADMIN_EMAIL = "sprttime111@gmail.com";
+    const ADMIN_PASSWORD = "r985@99!";
+
+    // دالة تسجيل الدخول
+    function login() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorDiv = document.getElementById('loginError');
+      
+      // تحقق من صحة البيانات
+      if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        // لتوفير حماية إضافية يمكن تخزين قيمة معقدة في localStorage
+        localStorage.setItem('isLoggedIn', 'true');
+        // إخفاء نموذج تسجيل الدخول وإظهار محتوى لوحة التحكم
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+      } else {
+        errorDiv.textContent = "بيانات الدخول غير صحيحة. حاول مرة أخرى.";
+      }
+    }
+    
+    // حماية وصول الصفحة: إذا لم يكن المستخدم مسجلاً للدخول، يظل محتوى لوحة التحكم مخفياً
+    window.onload = function() {
+      if(localStorage.getItem('isLoggedIn') === 'true') {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+      } else {
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('adminContent').style.display = 'none';
+      }
+    };
+
+    // باقي دوال إدارة المدرسين كما هو موجود في الملف الأصلي
+    let teachers = [];
+    let openTeachers = [];
+    let openClasses = {};
+
+    async function loadData() {
+      try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        teachers = data.teachers;
+        renderTeachers();
+      } catch (error) {
+        console.error('حدث خطأ:', error);
+      }
+    }
+
+    function renderTeachers() {
+      const list = document.getElementById('teachersList');
+      const prevOpenTeachers = [...openTeachers];
+      const prevOpenClasses = {...openClasses};
+      
+      list.innerHTML = teachers.map((teacher, index) => {
+        const isTeacherOpen = prevOpenTeachers.includes(teacher.id);
+        const classesHtml = teacher.classes.map((cls, clsIndex) => {
+          const isClassOpen = prevOpenClasses[teacher.id]?.includes(clsIndex);
+          return `
+            <div class="class-item">
+              <div class="class-header">
+                <input type="text" value="${cls.name}" id="className${index}-${clsIndex}">
+                <button onclick="updateClassName(${index}, ${clsIndex})">تحديث</button>
+                <button onclick="deleteClass(${index}, ${clsIndex})">حذف</button>
+                <button onclick="toggleClass(${index}, ${clsIndex})">${isClassOpen ? '▲' : '▼'}</button>
+              </div>
+              <div class="lectures" style="display: ${isClassOpen ? 'block' : 'none'}">
+                ${cls.lectures.map((lec, lecIndex) => `
+                  <div class="lecture-item">
+                    <input type="text" id="lectTitle${index}-${clsIndex}-${lecIndex}" value="${lec.title}">
+                    <input type="text" id="lectDesc${index}-${clsIndex}-${lecIndex}" value="${lec.description}">
+                    <input type="text" id="lectUrl${index}-${clsIndex}-${lecIndex}" value="${lec.url}">
+                    <button onclick="updateLecture(${index}, ${clsIndex}, ${lecIndex})">تحديث</button>
+                    <button onclick="deleteLecture(${index}, ${clsIndex}, ${lecIndex})">حذف</button>
+                  </div>
+                `).join('')}
+                <button onclick="addLecture(${index}, ${clsIndex})">إضافة محاضرة</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        return `
+          <div class="teacher-item">
+            <h3>${teacher.name} - ${teacher.subject}</h3>
+            ${teacher.image ? `<img src="${teacher.image}" class="image-preview" style="display:block">` : ''}
+            <div class="teacher-actions">
+              <button onclick="toggleTeacher(${index})">${isTeacherOpen ? '▲' : '▼'}</button>
+              <button onclick="deleteTeacher(${index})" style="background: #ff4444">حذف المدرس</button>
+            </div>
+            <div class="class-management" style="display: ${isTeacherOpen ? 'block' : 'none'}">
+              ${classesHtml}
+              <button onclick="addClass(${index})">إضافة فصل</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function deleteTeacher(index) {
+      if(confirm('هل أنت متأكد من حذف هذا المدرس وجميع فصوله؟')) {
+        const deletedTeacherId = teachers[index].id;
+        openTeachers = openTeachers.filter(id => id !== deletedTeacherId);
+        delete openClasses[deletedTeacherId];
+        teachers.splice(index, 1);
+        await saveData();
+        renderTeachers();
+      }
+    }
+
+    async function toggleTeacher(index) {
+      const teacherId = teachers[index].id;
+      openTeachers = openTeachers.includes(teacherId) 
+          ? openTeachers.filter(id => id !== teacherId) 
+          : [...openTeachers, teacherId];
+      renderTeachers();
+    }
+
+    function toggleClass(teacherIndex, classIndex) {
+      const teacherId = teachers[teacherIndex].id;
+      openClasses[teacherId] = openClasses[teacherId] || [];
+      openClasses[teacherId] = openClasses[teacherId].includes(classIndex)
+          ? openClasses[teacherId].filter(i => i !== classIndex)
+          : [...openClasses[teacherId], classIndex];
+      renderTeachers();
+    }
+
+    async function addClass(teacherIndex) {
+      const teacher = teachers[teacherIndex];
+      teacher.classes.push({
+        name: `الفصل الجديد ${teacher.classes.length + 1}`,
+        lectures: []
+      });
+      openClasses[teacher.id] = [...(openClasses[teacher.id] || []), teacher.classes.length - 1];
+      await saveData();
+      renderTeachers();
+    }
+
+    async function updateClassName(teacherIndex, classIndex) {
+      const newName = document.getElementById(`className${teacherIndex}-${classIndex}`).value;
+      teachers[teacherIndex].classes[classIndex].name = newName;
+      await saveData();
+      renderTeachers();
+    }
+
+    async function deleteClass(teacherIndex, classIndex) {
+      if(confirm('هل أنت متأكد من حذف هذا الفصل؟')) {
+        teachers[teacherIndex].classes.splice(classIndex, 1);
+        const teacherId = teachers[teacherIndex].id;
+        openClasses[teacherId] = openClasses[teacherId].filter(i => i !== classIndex);
+        await saveData();
+        renderTeachers();
+      }
+    }
+
+    async function addLecture(teacherIndex, classIndex) {
+      teachers[teacherIndex].classes[classIndex].lectures.push({
+        title: "محاضرة جديدة",
+        description: "وصف المحاضرة",
+        url: ""
+      });
+      await saveData();
+      renderTeachers();
+    }
+
+    async function updateLecture(teacherIndex, classIndex, lectureIndex) {
+      const title = document.getElementById(`lectTitle${teacherIndex}-${classIndex}-${lectureIndex}`).value;
+      const description = document.getElementById(`lectDesc${teacherIndex}-${classIndex}-${lectureIndex}`).value;
+      const url = document.getElementById(`lectUrl${teacherIndex}-${classIndex}-${lectureIndex}`).value;
+      teachers[teacherIndex].classes[classIndex].lectures[lectureIndex] = { title, description, url };
+      await saveData();
+      renderTeachers();
+    }
+
+    async function deleteLecture(teacherIndex, classIndex, lectureIndex) {
+      if(confirm('هل أنت متأكد من حذف هذه المحاضرة؟')) {
+        teachers[teacherIndex].classes[classIndex].lectures.splice(lectureIndex, 1);
+        await saveData();
+        renderTeachers();
+      }
+    }
+
+    async function saveTeacher() {
+      const newTeacher = {
+        id: Date.now(),
+        name: document.getElementById('teacherName').value,
+        subject: document.getElementById('teacherSubject').value,
+        image: document.getElementById('teacherImage').value,
+        classes: []
+      };
+      teachers.push(newTeacher);
+      await saveData();
+      renderTeachers();
+    }
+
+    async function saveData() {
+      try {
+        const response = await fetch('/api/save', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ teachers })
+        });
+        const result = await response.json();
+        alert(result.message);
+      } catch (error) {
+        alert('حدث خطأ في الحفظ: ' + error);
+      }
+    }
+
+    function previewImage(url) {
+      const preview = document.getElementById('imagePreview');
+      preview.src = url;
+      preview.style.display = url ? 'block' : 'none';
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
