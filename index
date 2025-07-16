@@ -1,0 +1,170 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sads Help</title>
+  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
+  <!-- polyfills للأجهزة القديمة -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.2.8/es6-promise.auto.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.6.2/fetch.min.js"></script>
+  <!-- Babel لتحويل الكود ES6+ إلى ES5 على المتصفح -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root { 
+      --primary: #c62828;
+      --plyr-color-main: #c62828;
+      --bg-color: #0a0a0a;
+      --text-color: #f5f5f5;
+      --card-color: #1a1a1a;
+      --border-color: #333;
+    }
+    [data-theme="light"] {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-color: #f5f5f5;
+      --border-color: #ddd;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Almarai', sans-serif; user-select: none; }
+    body { background: var(--bg-color); color: var(--text-color); line-height: 1.6; }
+    .page { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; }
+    .page.active { display: block; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    header { background: var(--card-color); padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 3px 6px rgba(0,0,0,0.16); }
+    .site-title { color: var(--primary); font-size: 1.8rem; cursor: pointer; transition: transform 0.3s; }
+    .site-title:hover { transform: scale(1.05); }
+    .search-container { flex-grow: 1; max-width: 600px; display: flex; gap: 0.5rem; }
+    #searchInput { width: 100%; padding: 0.8rem; border: 2px solid var(--border-color); border-radius: 8px; background: var(--card-color); color: var(--text-color); font-size: 1rem; }
+    #searchButton, #themeToggle { background: var(--primary); color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+    #searchButton { padding: 0 1.5rem; }
+    #themeToggle { padding: 0.5rem 1rem; }
+    #searchButton:hover, #themeToggle:hover { opacity: 0.9; }
+    .teachers-grid { display: flex; overflow-x: auto; gap: 2rem; padding: 1rem 0; margin-top: 2rem; }
+    .teacher-card { background: var(--card-color); padding: 1.5rem; border-radius: 15px; min-width: 280px; cursor: pointer; transition: 0.3s; flex-shrink: 0; }
+    .teacher-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+    .teacher-img { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); display: block; margin: 0 auto; }
+    .teacher-name { margin: 1rem 0; text-align: center; font-size: 1.2rem; }
+    .classes-page { display: grid; gap: 2rem; }
+    .teacher-info { background: var(--card-color); padding: 1.5rem; border-radius: 10px; display: flex; align-items: center; gap: 1rem; }
+    .teacher-img-lg { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--primary); object-fit: cover; }
+    .back-button, .copy-button { background: var(--primary); color: #fff; border: none; padding: 0.8rem 1.5rem; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-bottom: 1rem; }
+    .copy-button { margin-top: 1rem; font-size: 1rem; }
+    .back-button:hover, .copy-button:hover { opacity: 0.9; }
+    .classes-list { display: grid; gap: 1.5rem; }
+    .class-card { background: var(--card-color); padding: 1rem; border-radius: 10px; cursor: pointer; }
+    .class-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-left: 4px solid var(--primary); }
+    .lectures-list { display: none; gap: 0.8rem; margin-top: 1rem; padding-right: 1rem; }
+    .lecture-item { position: relative; padding: 1rem 1rem 1rem 2.5rem; background: var(--bg-color); border-radius: 8px; border-right: 3px solid var(--primary); cursor: pointer; transition: 0.3s; }
+    .lecture-item:hover { background: #4a1a1a; transform: translateX(10px); }
+    .checkmark { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--primary); }
+    .video-page { display: flex; flex-direction: column; gap: 2rem; }
+    .video-container { position: relative; background: black; }
+    .plyr video { width: 100%; height: auto; }
+    .video-details { background: var(--card-color); padding: 1.5rem; border-radius: 10px; text-align: center; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 200; }
+    .modal-content { background: var(--card-color); padding: 1.5rem; border-radius: 10px; text-align: center; position: relative; max-width: 300px; width: 90%; }
+    .modal-content img { width: 150px; height: 150px; border-radius: 50%; margin-bottom: 1rem; }
+    .modal-content a { display: inline-block; background: var(--primary); color: #fff; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; margin-top: 1rem; transition: 0.3s; }
+    .modal-content a:hover { opacity: 0.9; }
+    .close-modal { position: absolute; top: 0.5rem; left: 0.5rem; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-color); }
+    @media (max-width: 768px) { header { flex-direction: column; padding: 1rem; gap: 1rem; } .search-container { width: 100%; } .teachers-grid { flex-direction: column; } .teacher-card { min-width: auto; } .teacher-info { flex-direction: column; text-align: center; } .teacher-img { width: 150px; height: 150px; } }
+  </style>
+</head>
+<body>  <div id="jsonViewer" style="display: none; background: var(--card-color); padding: 1rem; margin: 2rem; border-radius: 8px;">
+    <pre id="jsonContent" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+  </div>  <script type="text/babel">
+    // إدارة حفظ تقدم المستخدم
+    var completedLectures = JSON.parse(localStorage.getItem('completedLectures') || '{}');
+    function saveCompleted() {
+      localStorage.setItem('completedLectures', JSON.stringify(completedLectures));
+    }
+    function markLectureCompleted(url) {
+      if (!completedLectures[url]) {
+        completedLectures[url] = true;
+        saveCompleted();
+        if (currentTeacher) renderClasses(currentTeacher.classes);
+      }
+    }
+  </script>  <header>
+    <h1 class="site-title" onclick="navigate('home')">Sads Help</h1>
+    <button id="themeToggle">تبديل الوضع</button>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="ابحث عن مدرس...">
+      <button id="searchButton">بحث</button>
+    </div>
+  </header>  <div id="homePage" class="page active">
+    <div class="teachers-grid" id="teachersGrid"></div>
+  </div>  <div id="classesPage" class="page">
+    <div class="classes-page">
+      <button class="back-button" onclick="navigate('home')">← الرجوع للمدرسين</button>
+      <div class="teacher-info"><img id="teacherImage" class="teacher-img-lg" alt="صورة المدرس">
+        <div><h2 id="teacherName"></h2><p id="teacherSubject"></p></div></div>
+      <div class="classes-list" id="classesList"></div>
+    </div>
+  </div>  <div id="videoPage" class="page">
+    <div class="video-page">
+      <div class="video-container">
+        <video id="player" playsinline controls></video>
+      </div>
+      <div class="video-details"><h2 id="videoTitle"></h2><p id="videoDescription"></p>
+        <button class="back-button" onclick="navigate('classes')">العودة للفصول</button></div>
+    </div>
+  </div>    <div id="telegramModal" class="modal">
+    <div class="modal-content">
+      <button class="close-modal" onclick="closeModal()">×</button>
+      <img src="https://cdn.glitch.global/d472cc04-f40d-483a-8a7d-67c6c1ddaaff/Picsart_25-04-18_07-56-03-508.jpg?v=1744952192982" alt="Telegram" class="modal-img">
+      <h3 class="modal-title">انضم لقناتنا على التليجرام</h3>
+      <p class="modal-text">احصل على آخر التحديثات والمحتوى الحصري مباشرة على جهازك</p>
+      <div class="modal-actions">
+        <a href="https://t.me/tteiio" target="_blank" class="modal-btn primary-btn">
+          <i class="fab fa-telegram"></i> انضم الآن
+        </a>
+        <button class="modal-btn secondary-btn" onclick="closeModal()">
+          لاحقاً
+        </button>
+      </div>
+    </div>
+  </div>  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>  <script src="https://cdn.plyr.io/3.7.2/plyr.polyfilled.js"></script>  <script type="text/babel">
+    function initializeTheme() {
+      var stored = localStorage.getItem('theme');
+      var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    initializeTheme();
+    document.getElementById('themeToggle').addEventListener('click', function() {
+      var cur = document.documentElement.getAttribute('data-theme');
+      var next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+
+    var hls;
+    var player = new Plyr('#player', {
+      controls: ['play-large','rewind','play','fast-forward','progress','current-time','mute','volume','captions','settings','airplay','fullscreen'],
+      settings: ['speed','quality'], speed:{selected:1,options:[0.5,1,1.25,1.5,2]}, seekTime:10
+    });
+
+    var pages={home:document.getElementById('homePage'),classes:document.getElementById('classesPage'),video:document.getElementById('videoPage')};
+    var teachersGrid=document.getElementById('teachersGrid');var searchInput=document.getElementById('searchInput');var searchButton=document.getElementById('searchButton');
+    var teachers=[],currentTeacher=null,currentClassIndex=0,currentLectureIndex=0,currentLectureLink='';
+
+    function navigate(page){window.scrollTo(0,0);if(page!=='video'){player.pause();if(hls){hls.destroy();hls=null;}}Object.keys(pages).forEach(function(k){pages[k].classList.remove('active');});pages[page].classList.add('active');}
+    function copyLectureLink(){if(!currentLectureLink)return;navigator.clipboard.writeText(currentLectureLink).then(function(){alert('تم نسخ رابط المحاضرة');}).catch(function(){alert('حدث خطأ أثناء النسخ');});}
+
+    function renderTeachers(list){list=list||teachers;if(!list.length){teachersGrid.innerHTML='<p>لا يوجد نتائج مطابقة</p>';return;}teachersGrid.innerHTML=list.map(function(t){return '<div class="teacher-card" onclick="showTeacher(\''+t.id+'\')"><img src="'+t.image+'" alt="'+t.name+'" class="teacher-img"><h3 class="teacher-name">'+t.name+'</h3><p>'+t.subject+'</p></div>';}).join('');}
+    function showTeacher(id){currentTeacher=teachers.find(function(t){return t.id==id;});if(!currentTeacher)return;document.getElementById('teacherImage').src=currentTeacher.image;document.getElementById('teacherName').textContent=currentTeacher.name;document.getElementById('teacherSubject').textContent=currentTeacher.subject;renderClasses(currentTeacher.classes);navigate('classes');}
+    function renderClasses(classesData){document.getElementById('classesList').innerHTML=classesData.map(function(cls,ci){var lectures=cls.lectures.map(function(lec,li){var done=completedLectures[lec.url];return '<div class="lecture-item" onclick="playVideo('+ci+','+li+',\''+lec.url.replace(/'/g,"\\'")+'\',\''+lec.title.replace(/'/g,"\\'")+'\',\''+lec.description.replace(/'/g,"\\'")+'\')">'+(li+1)+'. '+lec.title+(done?'<span class="checkmark">✔</span>':'')+'</div>';}).join('');return '<div class="class-card"><div class="class-header" onclick="toggleLectures(this)"><h3>'+cls.name+'</h3><span>▼</span></div><div class="lectures-list">'+lectures+'</div></div>';}).join('');}
+    function toggleLectures(el){var list=el.parentElement.querySelector('.lectures-list');var arrow=el.querySelector('span');if(!list.style.display||list.style.display==='none'){list.style.display='grid';arrow.textContent='▲';}else{list.style.display='none';arrow.textContent='▼';}}
+    function playVideo(ci,li,url,title,desc){currentClassIndex=ci;currentLectureIndex=li;currentLectureLink=url;var video=document.getElementById('player');if(url.endsWith('.m3u8')){if(hls){hls.destroy();}if(Hls.isSupported()){hls=new Hls();hls.loadSource(url);hls.attachMedia(video);hls.on(Hls.Events.MANIFEST_PARSED,function(){player.play();});}else if(video.canPlayType('application/vnd.apple.mpegurl')){video.src=url;video.addEventListener('loadedmetadata',function(){player.play();});}else{alert('هذا المتصفح لا يدعم بث الفيديو بهذا الصيغة');return;}}else{player.source={type:'video',sources:[{src:url,type:'video/mp4'}]};player.play();}document.getElementById('videoTitle').textContent=title;document.getElementById('videoDescription').textContent=desc;navigate('video');}
+    player.on('ended',function(){markLectureCompleted(currentLectureLink);var cls=currentTeacher.classes;var ci=currentClassIndex;var li=currentLectureIndex;if(li<cls[ci].lectures.length-1){li++;}else if(ci<cls.length-1){ci++;li=0;}else return;var next=cls[ci].lectures[li];playVideo(ci,li,next.url,next.title,next.description);});
+    function handleSearch(){var term=searchInput.value.trim().toLowerCase();renderTeachers(teachers.filter(function(t){return t.name.toLowerCase().includes(term)||t.subject.toLowerCase().includes(term);}));}
+    var searchTimeout;searchInput.addEventListener('input',function(){clearTimeout(searchTimeout);searchTimeout=setTimeout(handleSearch,300);});searchButton.addEventListener('click',handleSearch);
+    function loadData(){var errorMsg='<p class="error">حدث خطأ في تحميل البيانات</p>';
+      fetch('data.json',{headers:{'Referer':'https://careful-burnt-honesty.glitch.me/'}})
+      .then(function(res){if(!res.ok)throw new Error('فشل تحميل البيانات');return res.json();})
+      .then(function(data){teachers=data.teachers;renderTeachers();console.log('بيانات JSON:',data);})
+      .catch(function(error){console.error('Error:',error);teachersGrid.innerHTML=errorMsg;teachersGrid.innerHTML+='\n<button onclick="location.reload()" style="margin-top:1rem;padding:0.5rem 1rem;background:var(--primary);color:#fff;border:none;border-radius:5px;">إعادة تحميل البيانات</button>';});}
+    function closeModal(){document.getElementById('telegramModal').style.display='none';}
+    document.addEventListener('contextmenu',function(e){e.preventDefault();});document.addEventListener('selectstart',function(e){e.preventDefault();});
+    loadData();
+  </script></body>
+</html>
